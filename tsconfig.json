@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "lib": [
+      "es2020",
+      "dom"
+    ],
+    "outDir": "build",
+    "strict": true,
+    "downlevelIteration": true,
+    "noUnusedLocals": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "typeRoots": [
+      "node_modules/@0x/typescript-typings/types",
+      "node_modules/@types"
+    ],
+    "noUnusedParameters": false,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "useUnknownInCatchVariables": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "src/schemas/*.json"
+  ],
+  "display": "Recommended"
+}
