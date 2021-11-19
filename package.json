@@ -1,5 +1,5 @@
 {
-  "name": "0x-swap",
+  "name": "0x-swap-api",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
