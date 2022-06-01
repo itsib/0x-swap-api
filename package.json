@@ -1,6 +1,6 @@
 {
   "name": "0x-swap-api",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "",
   "author": "itsib.su@gmail.com",
   "license": "MIT",
@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build:docker": "tsc && ./build.sh",
-    "start": "node ./index.js",
+    "start": "node build/index.js",
     "dev": "ts-node -r dotenv/config ./src/index.ts | pino-pretty",
     "dev:watch": "nodemon | pino-pretty",
     "bump": "./node_modules/.bin/bump --tag --push --all"
