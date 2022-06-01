@@ -2,15 +2,9 @@ import { SupportedProvider, Web3ProviderEngine, Subprovider, Callback, ErrorCall
 import { providerUtils as ZeroExProviderUtils } from '@0x/utils';
 import { assert } from '@0x/assert';
 import { StatusCodes } from '@0x/types';
-import http from 'http';
-import https from 'https';
 import { InternalError, MethodNotFound } from 'json-rpc-error';
 import { JSONRPCRequestPayload } from 'ethereum-types';
-import fetch, { Headers, Response } from 'node-fetch';
-
-const httpAgent = new http.Agent({ keepAlive: true });
-const httpsAgent = new https.Agent({ keepAlive: true });
-const agent = (_parsedURL: any) => (_parsedURL.protocol === 'http:' ? httpAgent : httpsAgent);
+import { AxiosResponse, default as axios } from 'axios';
 
 /**
  * This class implements the [web3-provider-engine](https://github.com/MetaMask/provider-engine) subprovider interface.
@@ -43,26 +37,24 @@ class RPCSubProvider extends Subprovider {
    */
   public async handleRequest(payload: JSONRPCRequestPayload, _next: Callback, end: ErrorCallback): Promise<void> {
     const finalPayload = Subprovider._createFinalPayload(payload);
-    const headers = new Headers({
-      Accept: 'application/json',
-      'Accept-Encoding': 'gzip, deflate',
-      Connection: 'keep-alive',
-      'Content-Type': 'application/json',
-    });
 
-    let response: Response;
+    let response: AxiosResponse;
     const rpcUrl = this._rpcUrls[Math.floor(Math.random() * this._rpcUrls.length)];
     try {
       const cancelRequest = new AbortController()
       const abortTimer = setTimeout(() => cancelRequest.abort(), this._requestTimeoutMs);
 
-      response = await fetch(rpcUrl, {
+      response = await axios.request({
+        url: rpcUrl,
         method: 'POST',
-        headers,
-        body: JSON.stringify(finalPayload),
-        compress: true,
+        headers: {
+          Accept: 'application/json',
+          'Accept-Encoding': 'gzip, deflate',
+          Connection: 'keep-alive',
+          'Content-Type': 'application/json',
+        },
+        data: finalPayload,
         signal: cancelRequest.signal,
-        agent,
       });
 
       clearTimeout(abortTimer);
@@ -72,8 +64,7 @@ class RPCSubProvider extends Subprovider {
     } finally {
     }
 
-    const text = await response.text();
-    if (!response.ok) {
+    if (response.status !== 200) {
       const statusCode = response.status;
       switch (statusCode) {
         case StatusCodes.MethodNotAllowed:
@@ -86,24 +77,16 @@ class RPCSubProvider extends Subprovider {
           end(new InternalError(err));
           return;
         default:
-          end(new InternalError(text));
+          end(new InternalError(response.data));
           return;
       }
     }
 
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (err) {
-      end(new InternalError(err));
+    if (response.data.error) {
+      end(response.data.error);
       return;
     }
-
-    if (data.error) {
-      end(data.error);
-      return;
-    }
-    end(null, data.result);
+    end(null, response.data.result);
   }
 }
 

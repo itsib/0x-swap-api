@@ -1,10 +1,9 @@
-import { ChainId } from '@0x/contract-addresses';
 import { BigNumber } from '@0x/utils';
-import { LogLevel } from './types';
+import { ChainId, LogLevel } from './types';
 
 export const DEFAULT_LOG_LEVEL = LogLevel.INFO;
 export const DEFAULT_LOGGER_INCLUDE_TIMESTAMP = true;
-export const DEFAULT_CHAIN_ID = ChainId.Kovan;
+export const DEFAULT_CHAIN_ID = ChainId.ROPSTEN;
 export const DEFAULT_HTTP_PORT = 3000;
 export const DEFAULT_HTTP_KEEP_ALIVE_TIMEOUT = 5000;
 export const DEFAULT_HTTP_HEADERS_TIMEOUT = 6000;

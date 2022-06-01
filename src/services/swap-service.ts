@@ -8,7 +8,6 @@ import {
   ERC20BridgeSource,
   FakeTakerContract,
   NATIVE_FEE_TOKEN_BY_CHAIN_ID,
-  Orderbook,
   SwapQuote,
   SwapQuoteConsumer,
   SwapQuoteGetOutputOpts,
@@ -16,7 +15,6 @@ import {
   SwapQuoteRequestOpts,
   SwapQuoterOpts,
 } from '@0x/asset-swapper';
-import { ChainId } from '@0x/contract-addresses';
 import { WETH9Contract } from '@0x/contract-wrappers';
 import { ETH_TOKEN_ADDRESS, RevertError } from '@0x/protocol-utils';
 import { getTokenMetadataIfExists } from '@0x/token-metadata';
@@ -49,6 +47,7 @@ import {
   AffiliateFee,
   BucketedPriceDepth,
   CalculateMarketDepthParams,
+  ChainId,
   GetSwapQuoteParams,
   GetSwapQuoteResponse,
   TokenMetadataOptionalSymbol,
@@ -58,9 +57,9 @@ import {
   calculateCallDataGas,
   calculateDepthForSide,
   convertSourceBreakdownToArray,
-  fixCallData,
   getAffiliateFeeAmounts,
 } from '../utils';
+import { SwapperOrderbook } from '../utils/swapper-orderbook';
 
 export class SwapService {
   private readonly _provider: SupportedProvider;
@@ -115,18 +114,14 @@ export class SwapService {
     };
   }
 
-  constructor(
-    orderbook: Orderbook,
-    provider: SupportedProvider,
-    contractAddresses: AssetSwapperContractAddresses,
-  ) {
+  constructor(provider: SupportedProvider, contractAddresses: AssetSwapperContractAddresses) {
     this._provider = provider;
 
     const swapQuoterOpts: Partial<SwapQuoterOpts> = {
       ...SWAP_QUOTER_OPTS,
       contractAddresses,
     };
-    if (CHAIN_ID === ChainId.Ganache) {
+    if (CHAIN_ID === ChainId.GANACHE) {
       swapQuoterOpts.samplerOverrides = {
         block: BlockParamLiteral.Latest,
         overrides: {},
@@ -134,7 +129,7 @@ export class SwapService {
         ...(swapQuoterOpts.samplerOverrides || {}),
       };
     }
-    this._swapQuoter = new SwapQuoter(this._provider, orderbook, swapQuoterOpts);
+    this._swapQuoter = new SwapQuoter(this._provider, new SwapperOrderbook(), swapQuoterOpts);
     this._swapQuoteConsumer = new SwapQuoteConsumer(swapQuoterOpts);
     this._web3Wrapper = new Web3Wrapper(this._provider);
 
@@ -280,7 +275,7 @@ export class SwapService {
     const { takerAmountPerEth: takerTokenToEthRate, makerAmountPerEth: makerTokenToEthRate } = swapQuote;
 
     // Convert into unit amounts
-    const wethToken = getTokenMetadataIfExists('WETH', CHAIN_ID)!;
+    const wethToken = getTokenMetadataIfExists('WETH', CHAIN_ID as any)!;
     const sellTokenToEthRate = takerTokenToEthRate
       .times(new BigNumber(10).pow(wethToken.decimals - takerTokenDecimals))
       .decimalPlaces(takerTokenDecimals);
@@ -289,7 +284,7 @@ export class SwapService {
       .decimalPlaces(makerTokenDecimals);
 
     const apiSwapQuote: GetSwapQuoteResponse = {
-      chainId: CHAIN_ID,
+      chainId: CHAIN_ID as any,
       price,
       guaranteedPrice,
       to,
@@ -427,10 +422,10 @@ export class SwapService {
     const gasPrice = providedGasPrice || (await this._swapQuoter.getGasPriceEstimationOrThrowAsync());
     const gasEstimate = isUnwrap ? UNWRAP_QUOTE_GAS : WRAP_QUOTE_GAS;
     const apiSwapQuote: GetSwapQuoteResponse = {
-      chainId: CHAIN_ID,
+      chainId: CHAIN_ID as any,
       price: ONE,
       guaranteedPrice: ONE,
-      to: NATIVE_FEE_TOKEN_BY_CHAIN_ID[CHAIN_ID],
+      to: NATIVE_FEE_TOKEN_BY_CHAIN_ID[CHAIN_ID as any],
       data: attributedCalldata.affiliatedData,
       value,
       gas: gasEstimate,
@@ -463,7 +458,7 @@ export class SwapService {
     let callResultGanacheRaw: string | undefined;
     try {
       // NOTE: Ganache does not support overrides
-      if (CHAIN_ID === ChainId.Ganache) {
+      if (CHAIN_ID === ChainId.GANACHE) {
         // Default to true as ganache provides us less info and we cannot override
         callResult.success = true;
         const gas = await this._web3Wrapper.estimateGasAsync(txData).catch((_e) => {
@@ -575,12 +570,12 @@ export class SwapService {
       gasOverhead,
     } = await this._swapQuoteConsumer.getCalldataOrThrowAsync(swapQuote, opts);
 
-    const fixedCallData = fixCallData(data, swapQuote.takerToken, swapQuote.makerToken);
+    // const fixedCallData = fixCallData(data, swapQuote.takerToken, swapQuote.makerToken);
 
     return {
       to,
       value,
-      data: fixedCallData,
+      data,
       gasOverhead,
     };
   }

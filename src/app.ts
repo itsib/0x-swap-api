@@ -3,14 +3,20 @@ import { SupportedProvider } from '@0x/asset-swapper';
 import { getContractAddressesForChainOrThrow } from '@0x/contract-addresses';
 import express from 'express';
 import { Server } from 'http';
-import { CHAIN_ID, HEALTH_CHECK_HTTP_PORT, HTTP_HEADERS_TIMEOUT, HTTP_KEEP_ALIVE_TIMEOUT, HTTP_PORT } from './config';
+import {
+  CHAIN_ID,
+  EXCHANGE_PROXY_ADDRESS,
+  HEALTH_CHECK_HTTP_PORT,
+  HTTP_HEADERS_TIMEOUT,
+  HTTP_KEEP_ALIVE_TIMEOUT,
+  HTTP_PORT,
+} from './config';
 import { HEALTH_CHECK_PATH, METRICS_PATH, SWAP_PATH } from './constants';
 import { logger } from './logger';
 import { addressNormalizer } from './middleware/address-normalizer';
 import { errorHandler } from './middleware/error-handling';
 import { createSwapRouter } from './routes/swap-router';
 import { SwapService } from './services/swap-service';
-import { SwapperOrderbook } from './utils/swapper-orderbook';
 
 export async function createApp(provider: SupportedProvider): Promise<{ app: Express.Application; server: Server }> {
   const app = express();
@@ -28,8 +34,11 @@ export async function createApp(provider: SupportedProvider): Promise<{ app: Exp
   const server = createDefaultServer(config, app, logger, async () => Promise.resolve());
 
   const contractAddresses = getContractAddressesForChainOrThrow(CHAIN_ID as any);
+  if (EXCHANGE_PROXY_ADDRESS) {
+    contractAddresses.exchangeProxy = EXCHANGE_PROXY_ADDRESS;
+  }
 
-  const swapService = new SwapService(new SwapperOrderbook(), provider, contractAddresses);
+  const swapService = new SwapService(provider, contractAddresses);
 
   app.use(addressNormalizer);
 

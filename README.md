@@ -24,6 +24,7 @@ To get a local development version of `0x-swap-api` running:
 | `CHAIN_ID`                             | `42`                                                            | The chain id you'd like your API to run on (e.g: `1` -> mainnet, `42` -> Kovan, `3` -> Ropsten, `1337` -> Ganache). Defaults to `42` in the API, but required for `docker-compose up`. |
 | `ETHEREUM_RPC_URL`                     | Required. No default.                                           | The URL used to issue JSON RPC requests.   
 | `ETHEREUM_RPC_KEEP_ALIVE_TIMEOUT`      | `5000`                                                          | Timeout waiting for an RPC response, in milliseconds
+| `EXCHANGE_PROXY_ADDRESS`               | By default used address from `@0x/contract-addresses` by chain id | Custom ZeroEx proxy contract address.
 | `HTTP_PORT`                            | `3000`                                                          | Server port
 | `HEALTH_CHECK_HTTP_PORT`               | By default equal of `HTTP_PORT` value                           | Server Status Check port
 | `HTTP_KEEP_ALIVE_TIMEOUT`              | `5000`                                                          | Number of milliseconds of inactivity the servers waits for additional incoming data after it finished writing last response before a socket will be destroyed. Ref: https://nodejs.org/api/http.html#http_server_keepalivetimeout

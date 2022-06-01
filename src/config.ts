@@ -11,8 +11,7 @@ import {
   SwapQuoteRequestOpts,
   SwapQuoterOpts,
 } from '@0x/asset-swapper';
-import { ChainId } from '@0x/contract-addresses';
-import { nativeWrappedTokenSymbol, valueByChainId } from '@0x/token-metadata';
+import { valueByChainId } from '@0x/token-metadata';
 import { BigNumber } from '@0x/utils';
 import _ from 'lodash';
 import validateUUID from 'uuid-validate';
@@ -31,7 +30,7 @@ import {
   QUOTE_ORDER_EXPIRATION_BUFFER_MS,
   TX_BASE_GAS,
 } from './constants';
-import { LogLevel } from './types';
+import { ChainId, LogLevel } from './types';
 
 enum EnvVarType {
   AddressList,
@@ -117,7 +116,7 @@ export const LIQUIDITY_PROVIDER_REGISTRY: LiquidityProviderRegistry = _.isEmpty(
 const UNWRAP_GAS_BY_CHAIN_ID = valueByChainId<BigNumber>(
   {
     // NOTE: FTM uses a different WFTM implementation than WETH which uses more gas
-    [ChainId.Fantom]: new BigNumber(37000),
+    [ChainId.FANTOM]: new BigNumber(37000),
   },
   new BigNumber(25000),
 );
@@ -129,13 +128,13 @@ export const WRAP_QUOTE_GAS = UNWRAP_QUOTE_GAS;
 const EXCLUDED_SOURCES = (() => {
   const allERC20BridgeSources = Object.values(ERC20BridgeSource);
   switch (CHAIN_ID) {
-    case ChainId.Mainnet:
+    case ChainId.MAINNET:
       return [ERC20BridgeSource.MultiBridge];
-    case ChainId.Kovan:
+    case ChainId.KOVAN:
       return allERC20BridgeSources.filter(
         (s) => s !== ERC20BridgeSource.Native && s !== ERC20BridgeSource.UniswapV2,
       );
-    case ChainId.Ropsten:
+    case ChainId.ROPSTEN:
       const supportedRopstenSources = new Set([
         ERC20BridgeSource.Kyber,
         ERC20BridgeSource.Native,
@@ -149,11 +148,11 @@ const EXCLUDED_SOURCES = (() => {
       return allERC20BridgeSources.filter((s) => !supportedRopstenSources.has(s));
     case ChainId.BSC:
       return [ERC20BridgeSource.MultiBridge, ERC20BridgeSource.Native];
-    case ChainId.Polygon:
+    case ChainId.MATIC:
       return [ERC20BridgeSource.MultiBridge, ERC20BridgeSource.Native];
-    case ChainId.Avalanche:
+    case ChainId.AVALANCHE:
       return [ERC20BridgeSource.MultiBridge, ERC20BridgeSource.Native];
-    case ChainId.Fantom:
+    case ChainId.FANTOM:
       return [ERC20BridgeSource.MultiBridge, ERC20BridgeSource.Native];
     default:
       return allERC20BridgeSources.filter((s) => s !== ERC20BridgeSource.Native);
@@ -162,15 +161,15 @@ const EXCLUDED_SOURCES = (() => {
 
 const EXCLUDED_FEE_SOURCES = (() => {
   switch (CHAIN_ID) {
-    case ChainId.Mainnet:
+    case ChainId.MAINNET:
       return [];
-    case ChainId.Kovan:
+    case ChainId.KOVAN:
       return [ERC20BridgeSource.Uniswap];
-    case ChainId.Ropsten:
+    case ChainId.ROPSTEN:
       return [];
     case ChainId.BSC:
       return [ERC20BridgeSource.Uniswap];
-    case ChainId.Polygon:
+    case ChainId.MATIC:
       return [];
     default:
       return [ERC20BridgeSource.Uniswap, ERC20BridgeSource.UniswapV2];
@@ -230,6 +229,10 @@ const EXCHANGE_PROXY_OVERHEAD_FULLY_FEATURED = (sourceFlags: bigint) => {
 
 export const NATIVE_WRAPPED_TOKEN_SYMBOL = nativeWrappedTokenSymbol(CHAIN_ID);
 
+export const EXCHANGE_PROXY_ADDRESS: string | null = _.isEmpty(process.env.EXCHANGE_PROXY_ADDRESS)
+  ? null
+  : assertEnvVarType('EXCHANGE_PROXY_ADDRESS', process.env.EXCHANGE_PROXY_ADDRESS, EnvVarType.ETHAddressHex);
+
 export const ASSET_SWAPPER_MARKET_ORDERS_OPTS: Partial<SwapQuoteRequestOpts> = {
   excludedSources: EXCLUDED_SOURCES,
   excludedFeeSources: EXCLUDED_FEE_SOURCES,
@@ -250,8 +253,8 @@ export const ASSET_SWAPPER_MARKET_ORDERS_OPTS_NO_VIP: Partial<SwapQuoteRequestOp
 export const SAMPLER_OVERRIDES: SamplerOverrides | undefined = (() => {
   let samplerOverrides: SamplerOverrides | undefined;
   switch (CHAIN_ID) {
-    case ChainId.Ganache:
-    case ChainId.Kovan:
+    case ChainId.GANACHE:
+    case ChainId.KOVAN:
       samplerOverrides = { overrides: {}, block: BlockParamLiteral.Latest };
       break;
     default:
@@ -271,7 +274,7 @@ export const SAMPLER_OVERRIDES: SamplerOverrides | undefined = (() => {
 })();
 
 export const SWAP_QUOTER_OPTS: Partial<SwapQuoterOpts> = {
-  chainId: CHAIN_ID,
+  chainId: CHAIN_ID as any,
   expiryBufferMs: QUOTE_ORDER_EXPIRATION_BUFFER_MS,
   ethGasStationUrl: ETH_GAS_STATION_API_URL,
   permittedOrderFeeTypes: new Set([OrderPrunerPermittedFeeTypes.NoFees]),
@@ -291,6 +294,15 @@ function assertEnvVarType(name: string, value: any, expectedType: EnvVarType): a
       }
       return returnValue;
     case EnvVarType.ChainId:
+      returnValue = parseInt(value, 10);
+      if (isNaN(returnValue)) {
+        throw new Error(`${name} must be a valid integer, found ${value}.`);
+      }
+      const supportedChainIds = Object.values(ChainId).filter(i => typeof i === 'number') as ChainId[];
+      if (!supportedChainIds.includes(returnValue)) {
+        throw new Error(`${name} must be a supported chain id ${supportedChainIds.join(', ')}, found ${value}.`);
+      }
+      return returnValue;
     case EnvVarType.KeepAliveTimeout:
     case EnvVarType.Integer:
       returnValue = parseInt(value, 10);
@@ -392,14 +404,31 @@ function assertEnvVarType(name: string, value: any, expectedType: EnvVarType): a
       }
       return registry;
     case EnvVarType.LogLevel:
-      const supportedLogLevels = Object.values(LogLevel);
+      const supportedLogLevels = Object.values(LogLevel).filter(i => typeof i === 'string');
       const logLevelIndex = supportedLogLevels.indexOf(value.toUpperCase());
       if (logLevelIndex === -1) {
-        throw new Error(`Unsupported log level - ${value}`);
+        throw new Error(`Unsupported log level - ${value}. Supported log levels ${supportedLogLevels.join(', ')}`);
       }
       return logLevelIndex;
 
     default:
       throw new Error(`Unrecognised EnvVarType: ${expectedType} encountered for variable ${name}.`);
+  }
+}
+
+function nativeWrappedTokenSymbol(chainId: ChainId): string {
+  switch (chainId) {
+    case ChainId.BSC:
+      return 'WBNB';
+    case ChainId.MATIC:
+      return 'WMATIC';
+    case ChainId.AVALANCHE:
+      return 'WAVAX';
+    case ChainId.FANTOM:
+      return 'WFTM';
+    case ChainId.CELO:
+      return 'CELO';
+    default:
+      return 'WETH';
   }
 }

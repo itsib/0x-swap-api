@@ -20,7 +20,6 @@ import {
 import { AffiliateFee, AffiliateFeeAmounts, GetSwapQuoteResponseLiquiditySource } from '../types';
 import { randomHexNumberOfLength } from './number-utils';
 
-
 const PAY_TAKER_TRANSFORMER_START_WORDS = `${utils.hexZeroPad('0x7', ONE_WORD_LENGTH).substr(2)}${utils.hexZeroPad('0x40', ONE_WORD_LENGTH).substr(2)}`;
 const PAY_TAKER_TRANSFORMER_MIDDLE_WORDS = `${utils.hexZeroPad('0x20', ONE_WORD_LENGTH).substr(2)}${utils.hexZeroPad('0x40', ONE_WORD_LENGTH).substr(2)}`;
 const ZERO_WORD = utils.hexZeroPad('0x0', ONE_WORD_LENGTH).substr(2);
@@ -95,7 +94,7 @@ export function convertSourceBreakdownToArray(sourceBreakdown: SwapQuoteOrdersBr
     const defaultSourceBreakdown: SwapQuoteOrdersBreakdown = Object.assign(
       {},
       // TODO Jacob SELL is a superset of BUY, but may not always be
-      ...Object.values(SELL_SOURCE_FILTER_BY_CHAIN_ID[CHAIN_ID].sources).map((s) => ({ [s]: ZERO })),
+      ...Object.values(SELL_SOURCE_FILTER_BY_CHAIN_ID[CHAIN_ID].sources).map((s) => ({ [s as any]: ZERO })),
     );
 
     return Object.entries({ ...defaultSourceBreakdown, ...sourceBreakdown }).reduce<

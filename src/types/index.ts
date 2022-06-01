@@ -14,3 +14,4 @@ export * from './token-metadata-optional-symbol';
 export * from './bucketed-price-depth';
 export * from './calculate-market-depth-params';
 export * from './price';
+export * from './chain-id';

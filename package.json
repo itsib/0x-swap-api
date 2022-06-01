@@ -1,43 +1,50 @@
 {
   "name": "0x-swap-api",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
+  "author": "itsib.su@gmail.com",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/itsib/0x-swap-api"
+  },
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "start": "node -r dotenv/config lib/index.js",
-    "dev": "nodemon -r dotenv/config src/index.ts | pino-pretty",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:docker": "tsc && ./build.sh",
+    "start": "node ./index.js",
+    "dev": "ts-node -r dotenv/config ./src/index.ts | pino-pretty",
+    "dev:watch": "nodemon | pino-pretty",
+    "bump": "./node_modules/.bin/bump --tag --push --all"
   },
-  "author": "itsib.su@gmail.com",
-  "license": "ISC",
   "dependencies": {
     "@0x/api-utils": "0.0.1",
     "@0x/assert": "^3.0.30",
-    "@0x/asset-swapper": "^16.36.0",
+    "@0x/asset-swapper": "^16.60.1",
     "@0x/contract-addresses": "^6.9.0",
     "@0x/token-metadata": "^0.1.8",
     "@0x/types": "^3.3.4",
     "@0x/utils": "^6.4.4",
     "ajv": "^8.11.0",
+    "axios": "^0.27.2",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "express-async-handler": "^1.2.0",
     "http-status-codes": "^2.2.0",
     "json-rpc-error": "^2.0.0",
     "lodash": "^4.17.21",
-    "node-fetch": "^3.2.4",
     "uuid-validate": "0.0.3"
   },
   "devDependencies": {
+    "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.13",
     "@types/lodash": "^4.14.177",
     "@types/node": "^16.11.38",
-    "@types/node-fetch": "^3.0.3",
     "@types/uuid-validate": "0.0.1",
     "nodemon": "^2.0.16",
     "pino-pretty": "^7.2.0",
     "ts-node": "^10.8.0",
-    "typescript": "^4.7.2"
+    "typescript": "^4.7.2",
+    "version-bump-prompt": "^6.1.0"
   }
 }

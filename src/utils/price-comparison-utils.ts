@@ -12,7 +12,6 @@ import { MarketOperation } from '@0x/types';
 import { BigNumber } from '@0x/utils';
 import { Web3Wrapper } from '@0x/web3-wrapper';
 import _ from 'lodash';
-
 import { CHAIN_ID } from '../config';
 import { GAS_LIMIT_BUFFER_MULTIPLIER, TX_BASE_GAS, ZERO } from '../constants';
 import { logger } from '../logger';
