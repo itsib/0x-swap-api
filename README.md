@@ -6,7 +6,7 @@ This API faciliates consuming the best-priced liquidity from the greater DEX eco
 
 #### Pre-requirements
 
--   [Node.js](https://nodejs.org/en/download/) > v14.x
+-   [Node.js](https://nodejs.org/en/download/) > v16.x
 -   [Docker](https://www.docker.com/products/docker-desktop) > 19.x
 
 #### Developing

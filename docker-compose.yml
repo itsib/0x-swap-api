@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  relay:
+    image: sergeyitsib/0x-swap-api:latest
+    container_name: 0x-swap-api
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      LOG_LEVEL: 'DEBUG'
+      LOGGER_INCLUDE_TIMESTAMP: 'true'
+      HTTP_PORT: '3201'
+      ETHEREUM_RPC_URL: 'https://ropsten.infura.io/v3/fe327559be4c41b18d313acd242834a8'
+      ETHEREUM_RPC_KEEP_ALIVE_TIMEOUT: '15000'
+      CHAIN_ID: '3'
+    ports:
+      - '3201:3201'
+    networks:
+      - 0x-swap-net
+
+networks:
+  0x-swap-net:
+    driver: bridge
