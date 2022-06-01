@@ -18,19 +18,19 @@ To get a local development version of `0x-swap-api` running:
 
 2. Create an `.env` file and copy the content from the `.env_example` file. Defaults are defined in `config.ts`/`config.js`. The bash environment takes precedence over the `.env` file. If you run `source .env`, changes to the `.env` file will have no effect until you unset the colliding variables.
 
-| Environment Variable                   | Default                                                         | Description                                                                                                                                                                            |
-| -------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `LOG_LEVEL`                            | `4`                                                             | NOTHING = 0, ERROR = 1, WARN = 2, INFO = 4, DEBUG = 5.
-| `LOGGER_INCLUDE_TIMESTAMP`             | `true`                                                          | Show milliseconds timestamp in log output.  
-| `CHAIN_ID`                             | `42`                                                            | The chain id you'd like your API to run on (e.g: `1` -> mainnet, `42` -> Kovan, `3` -> Ropsten, `1337` -> Ganache). Defaults to `42` in the API, but required for `docker-compose up`. |
-| `ETHEREUM_RPC_URL`                     | Required. No default.                                           | The URL used to issue JSON RPC requests.   
-| `ETHEREUM_RPC_KEEP_ALIVE_TIMEOUT`      | `5000`                                                          | Timeout waiting for an RPC response, in milliseconds
+| Environment Variable                   | Default                                                           | Description                                                                                                                                                                            |
+| -------------------------------------- |-------------------------------------------------------------------| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LOG_LEVEL`                            | `INFO`                                                            | NOTHING, ERROR, WARN, INFO, DEBUG.
+| `LOGGER_INCLUDE_TIMESTAMP`             | `true`                                                            | Show milliseconds timestamp in log output.  
+| `CHAIN_ID`                             | `42`                                                              | The chain id you'd like your API to run on (e.g: `1` -> mainnet, `42` -> Kovan, `3` -> Ropsten, `1337` -> Ganache). Defaults to `42` in the API, but required for `docker-compose up`. |
+| `ETHEREUM_RPC_URL`                     | Required. No default.                                             | The URL used to issue JSON RPC requests.   
+| `ETHEREUM_RPC_KEEP_ALIVE_TIMEOUT`      | `5000`                                                            | Timeout waiting for an RPC response, in milliseconds
 | `EXCHANGE_PROXY_ADDRESS`               | By default used address from `@0x/contract-addresses` by chain id | Custom ZeroEx proxy contract address.
-| `HTTP_PORT`                            | `3000`                                                          | Server port
-| `HEALTH_CHECK_HTTP_PORT`               | By default equal of `HTTP_PORT` value                           | Server Status Check port
-| `HTTP_KEEP_ALIVE_TIMEOUT`              | `5000`                                                          | Number of milliseconds of inactivity the servers waits for additional incoming data after it finished writing last response before a socket will be destroyed. Ref: https://nodejs.org/api/http.html#http_server_keepalivetimeout
-| `HTTP_HEADERS_TIMEOUT`                 | `6000`                                                          | Limit the amount of time the parser will wait to receive the complete HTTP headers. NOTE: This value HAS to be higher than HTTP_KEEP_ALIVE_TIMEOUT. Ref: https://nodejs.org/api/http.html#http_server_headerstimeout
-| `ETH_GAS_STATION_API_URL`              | `https://ethgasstation.api.0x.org/api/ethgasAPI.json`           | Eth Gas Station URL.
+| `HTTP_PORT`                            | `3000`                                                            | Server port
+| `HEALTH_CHECK_HTTP_PORT`               | By default equal of `HTTP_PORT` value                             | Server Status Check port
+| `HTTP_KEEP_ALIVE_TIMEOUT`              | `5000`                                                            | Number of milliseconds of inactivity the servers waits for additional incoming data after it finished writing last response before a socket will be destroyed. Ref: https://nodejs.org/api/http.html#http_server_keepalivetimeout
+| `HTTP_HEADERS_TIMEOUT`                 | `6000`                                                            | Limit the amount of time the parser will wait to receive the complete HTTP headers. NOTE: This value HAS to be higher than HTTP_KEEP_ALIVE_TIMEOUT. Ref: https://nodejs.org/api/http.html#http_server_headerstimeout
+| `ETH_GAS_STATION_API_URL`              | `https://ethgasstation.api.0x.org/api/ethgasAPI.json`             | Eth Gas Station URL.
 
 3. Install the dependencies:
 
