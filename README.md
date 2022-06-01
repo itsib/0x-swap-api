@@ -8,6 +8,7 @@ This API faciliates consuming the best-priced liquidity from the greater DEX eco
 
 -   [Node.js](https://nodejs.org/en/download/) > v16.x
 -   [Docker](https://www.docker.com/products/docker-desktop) > 19.x
+-   [Docker Compose](https://docs.docker.com/compose/install/) > v1.25.4
 
 #### Developing
 
@@ -46,13 +47,17 @@ To get a local development version of `0x-swap-api` running:
 5. Start the API
 
     ```sh
-    npm start
+    docker-compose up
     ```
 
    For development:
 
     ```sh
     npm run dev
+    ```
+   or
+   ```sh
+    npm run dev:watch
     ```
 
 6. Enjoy yourself
