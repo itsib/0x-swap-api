@@ -14,6 +14,8 @@ build/
 .env.test.local
 .env.production.local
 
+.env
+
 .netlify/
 
 npm-debug.log*
