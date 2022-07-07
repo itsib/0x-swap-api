@@ -15,12 +15,13 @@
     "start": "node ./index.js",
     "dev": "ts-node -r dotenv/config ./src/index.ts | pino-pretty",
     "dev:watch": "nodemon | pino-pretty",
-    "bump": "./node_modules/.bin/bump --tag --push --all"
+    "bump": "./node_modules/.bin/bump --tag --push --all",
+    "postinstall": "node patch.js"
   },
   "dependencies": {
     "@0x/api-utils": "0.0.1",
     "@0x/assert": "^3.0.30",
-    "@0x/asset-swapper": "^16.60.1",
+    "@0x/asset-swapper": "16.60.1",
     "@0x/contract-addresses": "^6.9.0",
     "@0x/token-metadata": "^0.1.8",
     "@0x/types": "^3.3.4",
